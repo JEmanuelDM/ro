@@ -190,11 +190,14 @@
 
         const dateCell = document.createElement("td");
         let overdueClass = "";
+        
         if (task.date) {
           const taskDate = new Date(task.date);
           const currentDate = new Date();
+          
+          // Verificar si la tarea está vencida
           if (taskDate < currentDate) {
-            overdueClass = "overdue";
+            overdueClass = "overdue";  // Solo asignar la clase si la tarea está vencida
           }
 
           const fechaFormateada = taskDate.toLocaleDateString("es-ES", {
@@ -204,7 +207,7 @@
           });
 
           dateCell.textContent = fechaFormateada;
-          dateCell.classList.add(overdueClass);
+          dateCell.classList.add(overdueClass);  // Asegurarse de que la clase no esté vacía
         }
 
         const actionCell = document.createElement("td");
