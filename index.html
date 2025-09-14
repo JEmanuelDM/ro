@@ -23,7 +23,7 @@
     h1 {
       color: #d63384;
       font-size: 3em;
-      margin-bottom: 20px;
+      margin-bottom: 30px; /* Aumentado el margen inferior */
       font-family: 'Comic Sans MS', cursive, sans-serif;
       text-align: center;
     }
@@ -34,6 +34,7 @@
       align-items: center;
       gap: 15px;
       margin-bottom: 30px;
+      margin-top: 40px; /* Añadido margen superior */
     }
 
     input, button {
@@ -67,45 +68,39 @@
       transform: scale(1.05);
     }
 
-    ul {
-      list-style: none;
-      padding: 0;
-      max-width: 600px;
-      margin: 0 auto;
+    /* Estilos para la tabla invisible */
+    table {
+      width: 100%;
+      border-collapse: collapse; /* Elimina los bordes entre celdas */
     }
 
-    li {
-      background: #fff0fa;
-      border: 1px solid #f3cde5;
-      padding: 15px;
-      margin-bottom: 12px;
+    th, td {
+      padding: 20px; /* Aumentado el padding dentro de las celdas */
+      text-align: left;
+    }
+
+    th {
+      color: #d63384;
+      font-size: 1.5em;
+    }
+
+    td {
+      background-color: #fff0fa;
       border-radius: 12px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      transition: transform 0.2s ease;
+      margin-bottom: 10px; /* Separación entre filas */
+      color: #333;
     }
 
-    li:hover {
-      transform: scale(1.05);
-    }
-
-    .task-text {
-      max-width: 70%;
-    }
-
-    .task-date {
-      font-size: 1em;
-      color: #888;
-      margin-top: 5px;
+    .overdue {
+      color: #e04878;
+      font-weight: bold;
     }
 
     .delete-btn {
       background: #ff5c8d;
       color: white;
       border: none;
-      padding: 8px 15px;
+      padding: 12px 20px;
       cursor: pointer;
       border-radius: 8px;
       transition: background 0.3s, transform 0.2s;
@@ -120,19 +115,8 @@
       #task-input, #date-input {
         width: 90%;
       }
-      li {
-        flex-direction: column;
-        align-items: flex-start;
-      }
     }
 
-    /* Estilo para las fechas pasadas */
-    .overdue {
-      color: #e04878;
-      font-weight: bold;
-    }
-
-    /* Estilo del footer */
     footer {
       margin-top: auto; /* Empuja el footer hacia abajo */
       background-color: #d63384;
@@ -163,19 +147,25 @@
 
   <form id="task-form">
     <input type="text" id="task-input" placeholder="Escribe una tarea ..." required>
-
-    <!-- Etiqueta para el campo de fecha -->
     <label for="date-input" style="font-weight: bold; color: #d63384;">🗓️ Fecha límite:</label>
     <input type="date" id="date-input">
-
     <button type="submit" id="add-btn">Agregar tarea</button>
   </form>
 
-  <ul id="task-list"></ul>
+  <!-- Tabla invisible para las tareas -->
+  <table id="task-table">
+    <thead>
+      <tr>
+        <th>Tarea</th>
+        <th>Fecha límite</th>
+        <th>Acción</th>
+      </tr>
+    </thead>
+    <tbody id="task-list"></tbody>
+  </table>
 
   <footer>
     <p>te quiero <3</p>
-     
   </footer>
 
   <script>
@@ -193,22 +183,16 @@
     function renderTasks() {
       taskList.innerHTML = "";
       tasks.forEach((task, index) => {
-        const li = document.createElement("li");
+        const row = document.createElement("tr");
 
-        const taskText = document.createElement("div");
-        taskText.classList.add("task-text");
-        taskText.textContent = task.text;
+        const taskCell = document.createElement("td");
+        taskCell.textContent = task.text;
 
-        const dateText = document.createElement("div");
-        dateText.classList.add("task-date");
-
-        // Verificar si la fecha está vencida
+        const dateCell = document.createElement("td");
         let overdueClass = "";
         if (task.date) {
           const taskDate = new Date(task.date);
           const currentDate = new Date();
-
-          // Si la tarea ya pasó la fecha límite, poner en rojo
           if (taskDate < currentDate) {
             overdueClass = "overdue";
           }
@@ -219,10 +203,11 @@
             year: "numeric"
           });
 
-          dateText.textContent = "Fecha límite: " + fechaFormateada;
-          dateText.classList.add(overdueClass);
+          dateCell.textContent = fechaFormateada;
+          dateCell.classList.add(overdueClass);
         }
 
+        const actionCell = document.createElement("td");
         const deleteBtn = document.createElement("button");
         deleteBtn.textContent = "Eliminar";
         deleteBtn.classList.add("delete-btn");
@@ -232,10 +217,11 @@
           renderTasks();
         };
 
-        li.appendChild(taskText);
-        li.appendChild(dateText);
-        li.appendChild(deleteBtn);
-        taskList.appendChild(li);
+        actionCell.appendChild(deleteBtn);
+        row.appendChild(taskCell);
+        row.appendChild(dateCell);
+        row.appendChild(actionCell);
+        taskList.appendChild(row);
       });
     }
 
