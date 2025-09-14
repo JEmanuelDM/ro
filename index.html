@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Tus Tareas 🦄✨</title>
+  <style>
+    /* Estilos generales */
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 20px;
+      color: #333;
+      background-color: #f5e1f7;
+      background-image: url('https://www.pngall.com/wp-content/uploads/5/Unicorn-Transparent-PNG.png');
+      background-repeat: no-repeat;
+      background-position: center top;
+      background-size: 150px;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh; /* Asegura que el contenido llene toda la pantalla */
+    }
+
+    h1 {
+      color: #d63384;
+      font-size: 3em;
+      margin-bottom: 20px;
+      font-family: 'Comic Sans MS', cursive, sans-serif;
+      text-align: center;
+    }
+
+    #task-form {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 30px;
+    }
+
+    input, button {
+      font-size: 1.2em;
+      padding: 12px;
+      border: none;
+      border-radius: 12px;
+      transition: transform 0.2s ease;
+    }
+
+    #task-input {
+      width: 60%;
+      border: 2px solid #d63384;
+    }
+
+    #date-input {
+      width: 40%;
+      border: 2px solid #d63384;
+    }
+
+    #add-btn {
+      background-color: #d63384;
+      color: white;
+      cursor: pointer;
+      transition: background-color 0.3s, transform 0.2s;
+      width: 60%;
+    }
+
+    #add-btn:hover {
+      background-color: #c2185b;
+      transform: scale(1.05);
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    li {
+      background: #fff0fa;
+      border: 1px solid #f3cde5;
+      padding: 15px;
+      margin-bottom: 12px;
+      border-radius: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      transition: transform 0.2s ease;
+    }
+
+    li:hover {
+      transform: scale(1.05);
+    }
+
+    .task-text {
+      max-width: 70%;
+    }
+
+    .task-date {
+      font-size: 1em;
+      color: #888;
+      margin-top: 5px;
+    }
+
+    .delete-btn {
+      background: #ff5c8d;
+      color: white;
+      border: none;
+      padding: 8px 15px;
+      cursor: pointer;
+      border-radius: 8px;
+      transition: background 0.3s, transform 0.2s;
+    }
+
+    .delete-btn:hover {
+      background: #e04878;
+      transform: scale(1.1);
+    }
+
+    @media (max-width: 600px) {
+      #task-input, #date-input {
+        width: 90%;
+      }
+      li {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+
+    /* Estilo para las fechas pasadas */
+    .overdue {
+      color: #e04878;
+      font-weight: bold;
+    }
+
+    /* Estilo del footer */
+    footer {
+      margin-top: auto; /* Empuja el footer hacia abajo */
+      background-color: #d63384;
+      color: white;
+      padding: 20px;
+      border-radius: 15px;
+      font-size: 1.2em;
+      text-align: center;
+      font-family: 'Comic Sans MS', cursive, sans-serif;
+    }
+
+    footer a {
+      color: #ffffff;
+      text-decoration: none;
+      font-weight: bold;
+      border-bottom: 2px solid #ffffff;
+      padding-bottom: 2px;
+    }
+
+    footer a:hover {
+      color: #f5e1f7;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🦄✨ Tus Tareas  ✨🦄</h1>
+
+  <form id="task-form">
+    <input type="text" id="task-input" placeholder="Escribe una tarea ..." required>
+
+    <!-- Etiqueta para el campo de fecha -->
+    <label for="date-input" style="font-weight: bold; color: #d63384;">🗓️ Fecha límite:</label>
+    <input type="date" id="date-input">
+
+    <button type="submit" id="add-btn">Agregar tarea</button>
+  </form>
+
+  <ul id="task-list"></ul>
+
+  <footer>
+    <p>te quiero <3</p>
+     
+  </footer>
+
+  <script>
+    const taskForm = document.getElementById("task-form");
+    const taskInput = document.getElementById("task-input");
+    const dateInput = document.getElementById("date-input");
+    const taskList = document.getElementById("task-list");
+
+    let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+
+    function saveTasks() {
+      localStorage.setItem("tasks", JSON.stringify(tasks));
+    }
+
+    function renderTasks() {
+      taskList.innerHTML = "";
+      tasks.forEach((task, index) => {
+        const li = document.createElement("li");
+
+        const taskText = document.createElement("div");
+        taskText.classList.add("task-text");
+        taskText.textContent = task.text;
+
+        const dateText = document.createElement("div");
+        dateText.classList.add("task-date");
+
+        // Verificar si la fecha está vencida
+        let overdueClass = "";
+        if (task.date) {
+          const taskDate = new Date(task.date);
+          const currentDate = new Date();
+
+          // Si la tarea ya pasó la fecha límite, poner en rojo
+          if (taskDate < currentDate) {
+            overdueClass = "overdue";
+          }
+
+          const fechaFormateada = taskDate.toLocaleDateString("es-ES", {
+            day: "2-digit",
+            month: "long",
+            year: "numeric"
+          });
+
+          dateText.textContent = "Fecha límite: " + fechaFormateada;
+          dateText.classList.add(overdueClass);
+        }
+
+        const deleteBtn = document.createElement("button");
+        deleteBtn.textContent = "Eliminar";
+        deleteBtn.classList.add("delete-btn");
+        deleteBtn.onclick = () => {
+          tasks.splice(index, 1);
+          saveTasks();
+          renderTasks();
+        };
+
+        li.appendChild(taskText);
+        li.appendChild(dateText);
+        li.appendChild(deleteBtn);
+        taskList.appendChild(li);
+      });
+    }
+
+    taskForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const text = taskInput.value.trim();
+      const date = dateInput.value;
+
+      if (text !== "") {
+        tasks.push({ text, date });
+        saveTasks();
+        renderTasks();
+        taskInput.value = "";
+        dateInput.value = "";
+      }
+    });
+
+    renderTasks();
+  </script>
+
+</body>
+</html>
