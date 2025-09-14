@@ -176,6 +176,14 @@
 
     let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
 
+    // Tarea predeterminada (Ir a comer con Emanuel)
+    if (tasks.length === 0) {
+      const nextWednesday = new Date();
+      nextWednesday.setDate(nextWednesday.getDate() + ((3 - nextWednesday.getDay() + 7) % 7)); // Próximo miércoles
+      tasks.push({ text: "Ir a comer con el Emanuel <3", date: nextWednesday.toISOString().split('T')[0] });
+      saveTasks();
+    }
+
     function saveTasks() {
       localStorage.setItem("tasks", JSON.stringify(tasks));
     }
@@ -207,7 +215,11 @@
           });
 
           dateCell.textContent = fechaFormateada;
-          dateCell.classList.add(overdueClass);  // Asegurarse de que la clase no esté vacía
+          
+          // Verificar si overdueClass tiene un valor antes de agregarla
+          if (overdueClass) {
+            dateCell.classList.add(overdueClass);  // Solo agregar si la clase no está vacía
+          }
         }
 
         const actionCell = document.createElement("td");
